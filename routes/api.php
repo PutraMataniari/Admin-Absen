@@ -4,6 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth; // ⬅️ Wajib!
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\AuthController;
+
+
+Route::post('/register', [AuthController::class, 'register']);
 
 // 🔹 Login (bisa dipindah ke controller nanti)
 Route::post('users/login', function (Request $request) {
