@@ -15,6 +15,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
+use App\Filament\Resources\BlogResource\Api\Transformers\AbsenMasukTransformer;
 
 class AbsenMasukResource extends Resource
 {
@@ -91,4 +92,9 @@ class AbsenMasukResource extends Resource
             'edit' => Pages\EditAbsen::route('/{record}/edit'),
         ];
     }
+
+     public static function getApiTransformer()
+    {
+        return AbsenMasukTransformer::class;
+    }  
 }

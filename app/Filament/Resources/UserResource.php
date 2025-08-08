@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
+use App\Filament\Resources\BlogResource\Api\Transformers\UserTransformer;
 
 class UserResource extends Resource
 {
@@ -66,5 +67,9 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
+    }
+     public static function getApiTransformer()
+    {
+        return UserTransformer::class;
     }
 }
