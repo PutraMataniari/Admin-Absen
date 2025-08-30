@@ -20,7 +20,7 @@ class ListPerizinan extends ListRecords
        public function getBreadcrumbs(): array
 {
     return [
-        route('filament.admin.resources.absen-keluars.index') => 'Perizinan',
+        route('filament.admin.resources.absens.index') => 'Perizinan',
         'List Perizinan',
     ];
 }

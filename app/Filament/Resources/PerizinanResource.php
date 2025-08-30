@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\PerizinanExporter;
 use App\Filament\Resources\PerizinanResource\Pages;
 use App\Models\Absen;
 use Filament\Forms;
@@ -10,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
 
 // Form Components
 use Filament\Forms\Components\TextInput;
@@ -20,7 +22,6 @@ use Filament\Forms\Components\Select;
 // Table Columns
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\BadgeColumn;
 
 // Table Actions
 use Filament\Tables\Actions\EditAction;
@@ -34,7 +35,7 @@ class PerizinanResource extends Resource
     protected static ?string $pluralModelLabel = 'Perizinan';
     protected static ?string $navigationLabel = 'Perizinan';
     protected static ?string $navigationGroup = 'Absen';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-document-check';
 
     public static function getEloquentQuery(): Builder
@@ -65,18 +66,19 @@ class PerizinanResource extends Resource
                 ->directory('perizinan')
                 ->required(),
 
-            Select::make('keterangan')
+            Select::make('jenis_izin')
                 ->label('Jenis Perizinan')
                 ->options([
-                    'izin/cuti' => 'Izin/Cuti',
+                    'cuti' => 'Cuti',
                     'sakit' => 'Sakit',
                     'dinas' => 'Dinas',
                 ])
                 ->required(),
 
             FileUpload::make('bukti')
-                ->label('Bukti (Foto/File)')
+                ->label('Bukti(Foto/File)')
                 ->directory('bukti-perizinan')
+                ->disk('public')
                 ->preserveFilenames()
                 ->required(),
         ]);
@@ -94,31 +96,42 @@ class PerizinanResource extends Resource
 
                 ImageColumn::make('gambar')->label('Foto'),
 
-                BadgeColumn::make('keterangan')
+                TextColumn::make('jenis_izin')
                     ->label('Jenis Perizinan')
+                    ->badge()
                     ->colors([
-                        'izin/cuti' => 'primary',
-                        'sakit' => 'danger',
-                        'dinas' => 'success',
+                        'primary' => 'cuti',
+                        'danger' => 'sakit',
+                        'success' => 'dinas',
                     ])
                     ->formatStateUsing(fn (string $state) => ucfirst($state)),
 
                 TextColumn::make('bukti')
                     ->label('Bukti Upload')
                     ->formatStateUsing(function ($state) {
-                        $extension = pathinfo($state, PATHINFO_EXTENSION);
-                        $url = asset('storage/' . $state);
-
-                        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-                if (in_array(strtolower($extension), $imageExtensions)) {
-                    return '<img src="' . $url . '" style="width: 60px; border-radius: 6px;" />';
+                        if (empty($state)) {
+                            return 'No file';
                     }
+                        $extension = strtolower(pathinfo($state, PATHINFO_EXTENSION));
+                        $url = asset('storage/' .str_replace(' ', '%20', $state));
+                        $publicPath = public_path('storage/' . $state);
+                //mengecek apakah file ada
+                         if (!file_exists($publicPath)) {
+                            return '<span style="color:red;">File Tidak Ditemukan</span>';
+                    }      
 
-                    // Tampilkan link download untuk non-image
-                    return '<a href="' . $url . '" target="_blank">📄 Lihat File</a>';
-                })
-                    ->html(), // Penting untuk mengizinkan HTML dalam kolom
+                // Daftar ekstensi gambar
+                         $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+                    if (in_array($extension, $imageExtensions)) {
+                // Jika file adalah gambar, tampilkan preview gambar
+                    return '<img src="' . $url . '" style="max-width: 60px; border-radius: 6px;" />';
+                             } else {
+                // Jika bukan gambar, tampilkan link download
+                    return '<a href="' . $url . '" target="_blank" class="filament-link">📄 Lihat File</a>';
+                }
+            })
+                    ->html(), // Izinkan HTML dalam kolom
 
             ])
             ->actions([
@@ -127,8 +140,17 @@ class PerizinanResource extends Resource
             ])
             ->bulkActions([
                 BulkActionGroup::make([
+                    Tables\Actions\ExportAction::make()
+                        ->exporter(PerizinanExporter::class)
+                        ->label('Ekspor Perizinan'),
                     DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->exporter(PerizinanExporter::class)
+                    ->label('Ekspor Perizinan')
+                    ->icon('heroicon-o-arrow-down-tray'),
             ]);
     }
 

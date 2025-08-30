@@ -2,18 +2,26 @@
 
 namespace App\Models;
 
+use Filament\Http\Middleware\Authenticate;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class Absen extends Model
 {
     protected $table = 'absen';
     protected $fillable = [
-        'jenis',    //masuk, keluar, izin
+        'jenis',    //masuk, pulang, izin
         'nama',
         'waktu_absen',
         'lokasi',
         'gambar',
-        'keterangan',
+        'jenis_izin', //cuti, sakit, dinas
+        'laporan_kinerja',
         'bukti',
     ];
 }
+
+// class Absen extends Authenticate
+// {
+//     use Notifiable;
+// }

@@ -15,13 +15,14 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
-use App\Filament\Resources\BlogResource\Api\Transformers\UserTransformer;
+use App\Filament\Resources\UserResource\Api\Transformers\UserTransformer;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
+    
 
     public static function form(Form $form): Form
     {

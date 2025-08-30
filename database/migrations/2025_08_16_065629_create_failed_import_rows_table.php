@@ -11,15 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('absen', function (Blueprint $table) {
+        Schema::create('failed_import_rows', function (Blueprint $table) {
             $table->id();
-            $table->string('jenis');
-            $table->string('nama');
-            $table->timestamp('waktu_absen')->unique();
-            $table->string('lokasi');
-            $table->string('gambar');
-            $table->text('laporan_kinerja')->nullable();
-            $table->string('bukti')->nullable();
+            $table->json('data');
+            $table->foreignId('import_id')->constrained()->cascadeOnDelete();
+            $table->text('validation_error')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('absen');
+        Schema::dropIfExists('failed_import_rows');
     }
 };
