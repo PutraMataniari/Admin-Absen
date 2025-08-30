@@ -20,6 +20,18 @@ use Filament\Tables\Columns\ImageColumn;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Filament\Tables\Actions\ExportAction;
 use App\Filament\Exports\AbsenExporter;
+use Carbon\Carbon;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Section;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\Grid;
+use Filament\Infolists\Components\Fieldset;
+use Filament\Infolists\Components\Split;
+use Filament\Infolists\Components\Group;
+use Filament\Infolists\Infolist;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -36,7 +48,20 @@ class AbsenResource extends Resource
     public static function getEloquentQuery(): EloquentBuilder
     {
         return parent::getEloquentQuery()
-        ->whereIn('jenis', ['masuk', 'pulang']);
+            ->whereIn('jenis', ['masuk', 'pulang'])
+            ->orderByRaw(
+                "MONTH(waktu_absen) = 1 DESC,
+                MONTH(waktu_absen) = 2 DESC, 
+                MONTH(waktu_absen) = 3 DESC,
+                MONTH(waktu_absen) = 4 DESC,
+                MONTH(waktu_absen) = 5 DESC,
+                MONTH(waktu_absen) = 6 DESC,
+                MONTH(waktu_absen) = 7 DESC,
+                MONTH(waktu_absen) = 8 DESC,
+                MONTH(waktu_absen) = 9 DESC,
+                MONTH(waktu_absen) = 10 DESC, 
+                MONTH(waktu_absen) = 11 DESC, 
+                MONTH(waktu_absen) DESC, waktu_absen DESC");
     }
 
     // ✅ Form input gabungan
@@ -95,15 +120,49 @@ class AbsenResource extends Resource
                     ->wrap()->limit(100),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('jenis')
-                    ->options([
-                        'masuk' => 'Masuk',
-                        'pulang' => 'Pulang',
-                    ])
-                    ->label('Filter Jenis Absen'),
+            Tables\Filters\SelectFilter::make('jenis')
+                ->options([
+                    'masuk' => 'Masuk',
+                    'pulang' => 'Pulang',
+                ]),
+            Filter::make('created_at')        
+                ->label('Filter Bulan')
+                ->form([
+                    DatePicker::make('waktu_absen_from'),
+                    DatePicker::make('waktu_absen_until'),
+            ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                ->when(
+                    $data['waktu_absen_from'],
+                    fn (Builder $query, $date): Builder => $query->whereDate('waktu_absen', '>=', $date),
+                )
+                ->when(
+                    $data['waktu_absen_until'],
+                    fn (Builder $query, $date): Builder => $query->whereDate('waktu_absen', '<=', $date),
+                );
+            })
+                ->indicateUsing(function (array $data): array {
+                    $indicators = [];
+
+                if ($data['waktu_absen_from'] ?? null) {
+                    $indicators[] = Indicator::make('waktu_absen_from ' . Carbon::parse($data['waktu_absen_from'])
+                ->toFormattedDateString())
+                ->removeField('waktu_absen_from');
+                }
+
+                if ($data['waktu_absen_until'] ?? null) {
+                    $indicators[] = Indicator::make('waktu_absen_until ' . Carbon::parse($data['waktu_absen_until'])
+                ->toFormattedDateString())
+                ->removeField('waktu_absen_until');
+            }
+
+            return $indicators;
+        }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
@@ -123,6 +182,53 @@ class AbsenResource extends Resource
             ]);
     }
 
+// ...existing code...
+public static function infolist(Infolist $infolist): Infolist
+{
+    return $infolist
+        ->schema([
+            Fieldset::make('Detail Absen')
+                ->schema([
+                    Split::make([
+                        // KIRI: Foto
+                        ImageEntry::make('gambar')
+                            ->hiddenLabel()
+                            ->grow(false)
+                            ->size(100),
+
+                        // KANAN: Dua kolom data
+                        Grid::make(2)
+                            ->schema([
+                                // Kolom kiri
+                                Group::make([
+                                    TextEntry::make('jenis')
+                                        ->label('Jenis Absen')
+                                        ->badge()
+                                        ->colors([
+                                            'success' => 'masuk',
+                                            'danger' => 'pulang',
+                                        ]),
+                                    TextEntry::make('waktu_absen')->label('Waktu Absen'),
+                                    TextEntry::make('nama')->label('Nama'),
+                                ])
+                                ->columns(1)
+                                ->inlineLabel(),
+
+                                // Kolom kanan
+                                Group::make([
+                                    TextEntry::make('lokasi')->label('Lokasi'),
+                                    TextEntry::make('laporan_kinerja')->label('Laporan Kinerja'),
+                                ])
+                                ->columns(1)
+                                ->inlineLabel(),
+                            ]),
+                    ]),
+                ])
+                ->columns(1), // Fieldset hanya 1 kolom
+        ]);
+}
+// ...existing code...
+
     public static function getRelations(): array
     {
         return [];
@@ -133,7 +239,8 @@ class AbsenResource extends Resource
         return [
             'index' => Pages\ListAbsens::route('/'),
             'create' => Pages\CreateAbsen::route('/create'),
-            'edit' => Pages\EditAbsen::route('/{record}/edit'),
+            'view' => Pages\ViewAbsen::route('/{record}'),
+            // 'edit' => Pages\EditAbsen::route('/{record}/edit'),
         ];
     }
 }

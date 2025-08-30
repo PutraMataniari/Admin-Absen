@@ -28,6 +28,17 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ViewAction;
+
+//Table View
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\Fieldset;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\Split;
+use Filament\Infolists\Components\Grid;
+use Filament\Infolists\Components\Group;
+use Filament\Infolists\Components\BadgeEntry;
 
 class PerizinanResource extends Resource
 {
@@ -134,7 +145,17 @@ class PerizinanResource extends Resource
                     ->html(), // Izinkan HTML dalam kolom
 
             ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('jenis_izin')
+                ->label('Jenis Perizinan')
+                ->options([
+                    'cuti' => 'Cuti',
+                    'sakit' => 'Sakit',
+                    'dinas' => 'Dinas',
+                ])
+            ])
             ->actions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])
@@ -154,6 +175,70 @@ class PerizinanResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+{
+    return $infolist
+        ->schema([
+            Fieldset::make('Detail Perizinan')
+                ->schema([
+                    Split::make([
+                        ImageEntry::make('gambar')
+                            ->label('Foto')
+                            ->grow(false)
+                            ->size(100),
+                        Grid::make(2) // Membuat grid dengan 3 kolom
+                            ->schema([
+                                //kolom kiri
+                                Group::make([
+                                    TextEntry::make('jenis_izin')
+                                        ->label('Jenis Perizinan')
+                                        ->badge()
+                                        ->colors([
+                                            'primary' => 'cuti',
+                                            'danger' => 'sakit',
+                                            'success' => 'dinas',
+                                        ])
+                                        ->formatStateUsing(fn (string $state) => ucfirst($state)),
+                                    TextEntry::make('nama')->label('Nama'),
+                                    TextEntry::make('waktu_absen')
+                                        ->label('Waktu Absen')
+                                        ->dateTime('d M Y, H:i'), // Membuat waktu_absen memanjang ke kanan
+                                ])
+                                ->columns(1)
+                                ->inlineLabel(), // Membuat group ini memanjang ke kiri
+                                Group::make([
+                                    TextEntry::make('lokasi')
+                                        ->label('Lokasi'),  
+                                    // Tampilkan bukti file (gambar/file)
+                                    TextEntry::make('bukti')
+                                        ->label('Bukti')
+                                        ->formatStateUsing(function ($state) {
+                                            if (empty($state)) {
+                                                return 'No file';
+                                            }
+                                            $extension = strtolower(pathinfo($state, PATHINFO_EXTENSION));
+                                            $url = asset('storage/' . str_replace(' ', '%20', $state));
+                                            $publicPath = public_path('storage/' . $state);
+                                            if (!file_exists($publicPath)) {
+                                                return '<span style="color:red;">File Tidak Ditemukan</span>';
+                                            }
+                                            $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                                            if (in_array($extension, $imageExtensions)) {
+                                                return '<img src="' . $url . '" style="max-width: 80px; border-radius: 6px;" />';
+                                            } else {
+                                                return '<a href="' . $url . '" target="_blank" class="filament-link">📄 Lihat File</a>';
+                                            }
+                                        })
+                                        ->html(),
+                                ])->columns()
+                                  ->inlineLabel(), // Membuat group ini memanjang ke kanan
+                            ]),
+                    ]),
+                ])
+                ->columns(1),
+        ]);
+}
+
     public static function getRelations(): array
     {
         return [];
@@ -165,6 +250,7 @@ class PerizinanResource extends Resource
             'index' => Pages\ListPerizinan::route('/'),
             'create' => Pages\CreatePerizinan::route('/create'),
             'edit' => Pages\EditPerizinan::route('/{record}/edit'),
+            'view' => Pages\ViewPerizinan::route('/{record}'),
         ];
     }
 }
