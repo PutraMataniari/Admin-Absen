@@ -156,7 +156,7 @@ class PerizinanResource extends Resource
             ])
             ->actions([
                 ViewAction::make(),
-                EditAction::make(),
+                // EditAction::make(),
                 DeleteAction::make(),
             ])
             ->bulkActions([
@@ -186,7 +186,7 @@ class PerizinanResource extends Resource
                             ->label('Foto')
                             ->grow(false)
                             ->size(100),
-                        Grid::make(2) // Membuat grid dengan 3 kolom
+                        Grid::make(2) // Membuat grid dengan 2 kolom
                             ->schema([
                                 //kolom kiri
                                 Group::make([
@@ -205,10 +205,11 @@ class PerizinanResource extends Resource
                                         ->dateTime('d M Y, H:i'), // Membuat waktu_absen memanjang ke kanan
                                 ])
                                 ->columns(1)
-                                ->inlineLabel(), // Membuat group ini memanjang ke kiri
+                                ->inlineLabel(), // Membuat group ini memanjang ke kanan
                                 Group::make([
                                     TextEntry::make('lokasi')
-                                        ->label('Lokasi'),  
+                                        ->label('Lokasi'),
+
                                     // Tampilkan bukti file (gambar/file)
                                     TextEntry::make('bukti')
                                         ->label('Bukti')
@@ -249,7 +250,7 @@ class PerizinanResource extends Resource
         return [
             'index' => Pages\ListPerizinan::route('/'),
             'create' => Pages\CreatePerizinan::route('/create'),
-            'edit' => Pages\EditPerizinan::route('/{record}/edit'),
+            // 'edit' => Pages\EditPerizinan::route('/{record}/edit'),
             'view' => Pages\ViewPerizinan::route('/{record}'),
         ];
     }

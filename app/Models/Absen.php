@@ -18,6 +18,7 @@ class Absen extends Model
         'jenis_izin', //cuti, sakit, dinas
         'laporan_kinerja',
         'bukti',
+        'bukti_asli' // kolom baru untuk menyimpan nama file asli
     ];
 }
 
