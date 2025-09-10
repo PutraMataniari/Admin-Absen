@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Absen;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class AbsenController extends Controller
 {
@@ -12,10 +13,32 @@ class AbsenController extends Controller
     public function masuk(Request $request)
     {
         $validated = $request->validate([
-            'nama'   => 'required|string|max:255',
             'lokasi' => 'required|string',
-            'gambar' => 'nullable|image|mimes:jpg,jpeg,png',
+            'gambar' => 'nullable|image|mimes:jpg,jpeg,png|max:5120', // max 5MB
         ]);
+
+        $pegawai = $request->user()->pegawai;
+
+        // Jika data pegawai tidak ditemukan
+        if (!$pegawai) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pegawai tidak ditemukan'
+            ], 404);
+        }
+
+        // Cek apakah sudah absen masuk hari ini
+        $sudahAbsen = Absen::where('pegawai_id', $pegawai->id)
+            ->whereDate('waktu_absen', Carbon::today())
+            ->where('jenis', 'Masuk')
+            ->first();
+
+        if ($sudahAbsen) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah absen masuk hari ini'
+            ], 409);
+        }
 
         // Upload foto masuk
         $fotoPath = null;
@@ -23,10 +46,11 @@ class AbsenController extends Controller
             $fotoPath = $request->file('gambar')->store('absen', 'public');
         }
 
-        // Simpan ke database
+        // Simpan data absen masuk
         $absen = Absen::create([
+            'pegawai_id'      => $pegawai->id,
             'jenis'           => 'Masuk',
-            'nama'            => $validated['nama'],
+            'nama'            => $pegawai->nama,
             'waktu_absen'     => now(),
             'lokasi'          => $validated['lokasi'],
             'gambar'          => $fotoPath,
@@ -35,6 +59,7 @@ class AbsenController extends Controller
         ]);
 
         return response()->json([
+            'success' => true,
             'message' => 'Absen masuk berhasil',
             'data'    => $absen
         ], 201);
@@ -44,12 +69,33 @@ class AbsenController extends Controller
     public function pulang(Request $request)
     {
         $validated = $request->validate([
-            'nama'             => 'required|string|max:255',
             'lokasi'           => 'required|string',
-            'gambar'           => 'nullable|image|mimes:jpg,jpeg,png',
+            'gambar'           => 'nullable|image|mimes:jpg,jpeg,png|max:5120', // max 5MB
             'laporan_kinerja'  => 'required|string',
             'bukti'            => 'nullable|image|mimes:jpg,jpeg,png',
         ]);
+
+        $pegawai = $request->user()->pegawai;
+
+        if (!$pegawai) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pegawai tidak ditemukan'
+            ], 404);
+        }
+
+        // Cek apakah sudah absen pulang hari ini
+        $sudahAbsenPulang = Absen::where('pegawai_id', $pegawai->id)
+            ->whereDate('waktu_absen', Carbon::today())
+            ->where('jenis', 'Pulang')
+            ->first();
+
+        if ($sudahAbsenPulang) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah absen pulang hari ini'
+            ], 409);
+        }
 
         // Upload foto pulang
         $fotoPath = null;
@@ -62,10 +108,11 @@ class AbsenController extends Controller
             $buktiPath = $request->file('bukti')->store('bukti', 'public');
         }
 
-        // Simpan ke database
+        // Simpan data absen pulang
         $absen = Absen::create([
+            'pegawai_id'      => $pegawai->id,
             'jenis'           => 'Pulang',
-            'nama'            => $validated['nama'],
+            'nama'            => $pegawai->nama,
             'waktu_absen'     => now(),
             'lokasi'          => $validated['lokasi'],
             'gambar'          => $fotoPath,
@@ -74,21 +121,32 @@ class AbsenController extends Controller
         ]);
 
         return response()->json([
+            'success' => true,
             'message' => 'Absen pulang berhasil',
             'data'    => $absen
         ], 201);
     }
 
-    // History
+    // History Absen
     public function history(Request $request)
     {
-        $user = $request->user();
+        $pegawai = $request->user()->pegawai;
 
-        $absen = Absen::where('nama', $user->name)
+        if (!$pegawai) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pegawai tidak ditemukan'
+            ], 404);
+        }
+
+        // Ambil riwayat absensi + relasi pegawai
+        $absen = Absen::where('pegawai_id', $pegawai->id)
+            ->with('pegawai')
             ->orderBy('waktu_absen', 'desc')
             ->get();
 
         return response()->json([
+            'success' => true,
             'message' => 'Riwayat absen ditemukan',
             'data'    => $absen
         ]);

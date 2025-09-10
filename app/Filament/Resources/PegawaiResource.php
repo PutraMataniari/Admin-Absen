@@ -29,6 +29,9 @@ use Filament\Infolists\Components\Fieldset;
 use Filament\Infolists\Components\Split;
 use Filament\Infolists\Components\Group;
 use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
 
 class PegawaiResource extends Resource
 {
@@ -91,7 +94,11 @@ class PegawaiResource extends Resource
                 TextColumn::make('nip'),
                 TextColumn::make('email'),
                 TextColumn::make('no_telp'),
-                TextColumn::make('tanggal_lahir'),
+                TextColumn::make('tanggal_lahir')
+                    ->formatStateUsing(function ($state) {
+                        $date = \Carbon\Carbon::parse($state);
+                        return  $date->format('d M Y')  . ' (' . $date->age . ' thn)';
+                    }),
                 TextColumn::make('jabatan'),
                 TextColumn::make('bagian'),
                 TextColumn::make('sub_bagian'),
@@ -101,8 +108,18 @@ class PegawaiResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                ViewAction::make()
+                    ->button() // ✅ jadi tombol
+                    ->color('info')
+                    ->icon('heroicon-o-eye'),
+                EditAction::make()
+                    ->button() // ✅ tombol
+                    ->color('warning')
+                    ->icon('heroicon-o-pencil-square'),
+                DeleteAction::make()
+                    ->button() // ✅ tombol
+                    ->color('danger')
+                    ->icon('heroicon-o-trash'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

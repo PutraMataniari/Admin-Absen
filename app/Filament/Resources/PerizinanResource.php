@@ -18,7 +18,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-
+use Filament\Forms\Components\Textarea;
 // Table Columns
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
@@ -29,6 +29,8 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Actions\Action;
+
 
 //Table View
 use Filament\Infolists\Infolist;
@@ -39,6 +41,8 @@ use Filament\Infolists\Components\Split;
 use Filament\Infolists\Components\Grid;
 use Filament\Infolists\Components\Group;
 use Filament\Infolists\Components\BadgeEntry;
+
+use function Laravel\Prompts\select;
 
 class PerizinanResource extends Resource
 {
@@ -92,6 +96,20 @@ class PerizinanResource extends Resource
                 ->disk('public')
                 ->preserveFilenames()
                 ->required(),
+
+            select::make('status')
+                ->label('Status')
+                ->options([
+                    'pending' => 'Pending',
+                    'disetujui' => 'Disetujui',
+                    'ditolak' => 'Ditolak',
+                ])
+                ->required()
+                ->default('pending'),
+            Textarea::make('catatan_admin')
+                ->label('Catatan Admin')
+                ->maxLength(500)
+                ->nullable(),    
         ]);
     }
 
@@ -99,13 +117,41 @@ class PerizinanResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('nama')->label('Nama')->searchable(),
+                TextColumn::make('pegawai.nama')
+                    ->label('Nama')
+                    ->sortable()
+                    ->searchable()
+                    ->formatStateUsing(function ($state) {
+                        $parts = explode(' ', $state);
+                        if (count($parts) > 3) {
+                            // Gabungkan 2 kata pertama, kata ke-3 dan seterusnya di baris bawah
+                            return implode(' ', array_slice($parts, 0, 2)) . '<br>' . implode(' ', array_slice($parts, 2));
+                        }
+                        return $state;
+                    })
+                    ->html()
+                    ->wrap(), // Supaya <br> bisa dibaca
 
-                TextColumn::make('waktu_absen')->label('Waktu')->dateTime(),
+                TextColumn::make('waktu_absen')
+                    ->label('Waktu')
+                    ->formatStateUsing(function ($state) {
+                        $date = \Carbon\Carbon::parse($state);
+                        return  $date->format('d M Y') . '<br>' .$date->format('H:i');
+                    })
+                    ->html(),
+                    // ->wrap(),
 
-                TextColumn::make('lokasi')->label('Lokasi')->wrap(),
-
-                ImageColumn::make('gambar')->label('Foto'),
+                TextColumn::make('lokasi')
+                    ->label('Lokasi')
+                    ->wrap()
+                    ->extraAttributes([
+                        'style' => 'max-width:300px; white-space:normal; word-break:break-word;',
+                    ]),
+                ImageColumn::make('gambar')
+                    ->label('Foto')
+                    ->width(80)       // atur lebar
+                    ->height(80)      // optional kalau mau fixed height
+                    ->extraImgAttributes(['class' => 'rounded-lg object-cover']), // kasih radius,
 
                 TextColumn::make('jenis_izin')
                     ->label('Jenis Perizinan')
@@ -136,13 +182,30 @@ class PerizinanResource extends Resource
 
                     if (in_array($extension, $imageExtensions)) {
                 // Jika file adalah gambar, tampilkan preview gambar
-                    return '<img src="' . $url . '" style="max-width: 60px; border-radius: 6px;" />';
+                    return '<img src="' . $url . '" style="max-width: 50px; border-radius: 6px;" />';
                              } else {
                 // Jika bukan gambar, tampilkan link download
                     return '<a href="' . $url . '" target="_blank" class="filament-link">📄 Lihat File</a>';
                 }
             })
                     ->html(), // Izinkan HTML dalam kolom
+
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->colors([
+                        'warning' => 'pending',
+                        'success' => 'disetujui',
+                        'danger' => 'ditolak',]),
+                
+                TextColumn::make('catatan_admin')
+                    ->label('Catatan Admin')
+                    ->limit(50)
+                    ->toggleable()
+                    ->wrap() // agar teks panjang turun ke bawah
+                    ->extraAttributes([
+                        'style' => 'max-width: 250px; white-space: normal; word-break: break-word;'
+                    ]),
 
             ])
             ->filters([
@@ -154,10 +217,48 @@ class PerizinanResource extends Resource
                     'dinas' => 'Dinas',
                 ])
             ])
+
             ->actions([
-                ViewAction::make(),
+
+                Action::make('setujui')
+                    ->label('Setujui')
+                    ->button() // ✅ tampil sebagai tombol
+                    ->color('success')
+                    ->icon('heroicon-o-check')
+                    ->requiresConfirmation()
+                    ->modalHeading('Setujui')
+                    ->modalDescription('Apakah anda yakin ingin menyetujui izin ini?')
+                    ->modalSubmitActionLabel('Ya, Setujui')
+                    ->visible(fn ($record) => $record->status === 'pending') // hanya tampil kalau status pending
+                    ->action(fn ($record) => $record->update([
+                        'status' => 'disetujui',
+                        'catatan_admin' => 'Izin Anda disetujui',
+                    ])),
+
+                Action::make('tolak')
+                    ->label('Tolak')
+                    ->button() // ✅ tombol
+                    ->color('danger')
+                    ->icon('heroicon-o-x-mark')
+                    ->form([
+                        Forms\Components\Textarea::make('catatan_admin')
+                            ->label('Alasan Ditolak')
+                            ->required(),
+                    ])
+                    ->visible(fn ($record) => $record->status === 'pending') // hanya tampil kalau status pending
+                    ->action(fn ($record, array $data) => $record->update([
+                        'status' => 'ditolak',
+                        'catatan_admin' => $data['catatan_admin'],
+                    ])),
+                ViewAction::make()
+                    ->button() // ✅ jadi tombol
+                    ->color('info')
+                    ->icon('heroicon-o-eye'),
                 // EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->button() // ✅ tombol
+                    ->color('danger')
+                    ->icon('heroicon-o-trash'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -199,17 +300,28 @@ class PerizinanResource extends Resource
                                             'success' => 'dinas',
                                         ])
                                         ->formatStateUsing(fn (string $state) => ucfirst($state)),
-                                    TextEntry::make('nama')->label('Nama'),
+                                    TextEntry::make('pegawai.nama')->label('Nama'),
                                     TextEntry::make('waktu_absen')
                                         ->label('Waktu Absen')
                                         ->dateTime('d M Y, H:i'), // Membuat waktu_absen memanjang ke kanan
+                                    TextEntry::make('status')
+                                        ->label('Status')
+                                        ->badge()
+                                        ->colors([
+                                            'warning' => 'pending',
+                                            'success' => 'disetujui',
+                                            'danger' => 'ditolak',
+                                        ]),
+                                    TextEntry::make('catatan_admin')
+                                        ->label('Catatan Admin'),    
+
                                 ])
                                 ->columns(1)
                                 ->inlineLabel(), // Membuat group ini memanjang ke kanan
                                 Group::make([
                                     TextEntry::make('lokasi')
                                         ->label('Lokasi'),
-
+                                    
                                     // Tampilkan bukti file (gambar/file)
                                     TextEntry::make('bukti')
                                         ->label('Bukti')

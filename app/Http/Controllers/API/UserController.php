@@ -52,13 +52,13 @@ class UserController extends Controller
     {
         try {
             $request->validate([
-                'name' => ['required', 'string', 'max:100'],
+                'nama' => ['required', 'string', 'max:100'],
                 'email' => ['required', 'string', 'email', 'max:50', 'unique:users'],
                 'password' => ['required', 'min:6']
             ]);
 
             User::create([
-                'name' => $request->name,
+                'nama' => $request->nama,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);

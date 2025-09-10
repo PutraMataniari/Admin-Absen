@@ -15,12 +15,16 @@ return new class extends Migration
             $table->id();
             $table->string('jenis');
             $table->string('nama');
+            // $table->unsignedBigInteger('pegawai_id'); // ganti nama jadi foreign key
             $table->timestamp('waktu_absen')->unique();
             $table->string('lokasi');
             $table->string('gambar');
             $table->text('laporan_kinerja')->nullable();
             $table->string('bukti')->nullable();
             $table->timestamps();
+
+            // foreign key ke tabel pegawai
+            // $table->foreign('pegawai_id')->references('id')->on('pegawai')->onDelete('cascade');
         });
     }
 

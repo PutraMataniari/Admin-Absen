@@ -12,6 +12,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
@@ -28,7 +30,7 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name'),
+                TextInput::make('nama'),
                 TextInput::make('email'),
                 TextInput::make('password')->password()
             ]);
@@ -38,14 +40,29 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name'),
+                TextColumn::make('name')
+                    ->label('Nama')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('email')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('role') // ✅ tambahkan ini
+                    ->label('Role')
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make()
+                    ->button() // ✅ tombol
+                    ->color('warning')
+                    ->icon('heroicon-o-pencil-square'),
+                DeleteAction::make()
+                    ->button() // ✅ tombol
+                    ->color('danger')
+                    ->icon('heroicon-o-trash'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -4,65 +4,55 @@ namespace App\Http\Controllers;
 
 use App\Models\Absen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PerizinanController extends Controller
 {
-    // ✅ Pengajuan izin
+    // ✅ Pengajuan izin (cuti, sakit, dinas)
     public function store(Request $request)
     {
         $validated = $request->validate([
             'nama'       => 'required|string|max:255',
             'lokasi'     => 'required|string',
-            'jenis_izin' => 'required|in:cuti,sakit,dinas',
-            'gambar'     => 'required|image|mimes:jpg,jpeg,png',
-            'bukti'      => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx'
+            'jenis_izin' => 'required|in:cuti,Cuti,sakit,Sakit,dinas,Dinas',
+            'gambar'     => 'required|image|mimes:jpg,jpeg,png|max:5120', // max 5MB
+            'bukti'      => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120' // max 5MB
         ]);
 
+        // Ambil data pegawai dari user yang sedang login
+        $pegawai = Auth::user()->pegawai;
+
+        if (!$pegawai) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Pegawai tidak ditemukan'
+            ], 404);
+        }
+
         // Upload foto selfie
-        $gambarPath = null;
-        if ($request->hasFile('gambar')) {
-            $gambarPath = $request->file('gambar')->store('absen/gambar', 'public');
-        }
+        $gambarPath = $request->file('gambar')->store('absen/gambar', 'public');
 
-        // Upload lampiran (bukti pendukung)
-        $buktiPath = null;
-        $buktiAsli = null;
-        if ($request->hasFile('bukti')) {
-            $buktiFile = $request->file('bukti');
-            $buktiAsli = $buktiFile->getClientOriginalName(); // Simpan nama file asli
-            $buktiPath = $request->file('bukti')->store('absen/bukti', 'public');
-        }
+        // Upload lampiran bukti
+        $buktiPath = $request->file('bukti')->store('absen/bukti', 'public');
+        $buktiAsli = $request->file('bukti')->getClientOriginalName();
 
+        // Simpan data izin
         $izin = Absen::create([
-            'jenis'       => 'izin', // supaya dibedakan dari masuk/pulang
-            'nama'        => $validated['nama'],
+            'pegawai_id'  => $pegawai->id,
+            'jenis'       => 'izin',
             'waktu_absen' => now(),
             'lokasi'      => $validated['lokasi'],
             'gambar'      => $gambarPath,
             'jenis_izin'  => $validated['jenis_izin'],
             'bukti'       => $buktiPath,
-            'bukti_asli'  => $buktiAsli, // simpan nama file asli
+            'bukti_asli'  => $buktiAsli,
         ]);
 
         return response()->json([
+            'status'  => true,
             'message' => 'Pengajuan izin berhasil disimpan',
             'data'    => $izin
         ], 201);
-    }
-
-    // ✅ Riwayat izin (khusus data izin saja)
-    public function history(Request $request)
-    {
-        $user = $request->user();
-
-        $izin = Absen::where('nama', $user->name)
-            ->where('jenis', 'izin') // hanya ambil data izin
-            ->orderBy('waktu_absen', 'desc')
-            ->get();
-
-        return response()->json([
-            'message' => 'Riwayat izin ditemukan',
-            'data'    => $izin
-        ]);
     }
 }

@@ -33,6 +33,8 @@ use Filament\Infolists\Infolist;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\Indicator;
 use Illuminate\Support\Facades\Storage;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\ViewAction;
 
 
 class AbsenResource extends Resource
@@ -104,26 +106,47 @@ class AbsenResource extends Resource
                     ->label('Jenis')
                     ->badge()
                     ->colors([
-                        'success' => 'masuk',
-                        'danger' => 'pulang',
+                        'success' => 'Masuk',
+                        'danger' => 'Pulang',
                     ])
                     ->sortable(),
-                TextColumn::make('nama')->searchable(),
-                TextColumn::make('waktu_absen')->dateTime(),
+                TextColumn::make('pegawai.nama')
+                    ->label('Nama')
+                    ->sortable()
+                    ->searchable()
+                    ->formatStateUsing(function ($state) {
+                        $parts = explode(' ', $state);
+                        if (count($parts) > 3) {
+                            // Gabungkan 2 kata pertama, kata ke-3 dan seterusnya di baris bawah
+                            return implode(' ', array_slice($parts, 0, 2)) . '<br>' . implode(' ', array_slice($parts, 2));
+                        }
+                        return $state;
+                    })
+                    ->html()
+                    ->wrap(),
+                TextColumn::make('waktu_absen')
+                    ->formatStateUsing(function ($state) {
+                        $date = \Carbon\Carbon::parse($state);
+                        return  $date->format('d M Y') . '<br>' .$date->format('H:i');
+                    })
+                    ->html(),
                 TextColumn::make('lokasi')->label('Lokasi')->wrap(),
                 ImageColumn::make('gambar')
                     ->label('Bukti Foto')
                     ->disk('public')
                     // ->url(fn ($record) => $record->gambar ? Storage::url($record->gambar) : null)
-                    ->placeholder('No photo'),
+                    ->placeholder('No photo')
+                    ->width(80)       // atur lebar
+                    ->height(80)      // optional kalau mau fixed height
+                    ->extraImgAttributes(['class' => 'rounded-lg object-cover']), // kasih radius
                 TextColumn::make('laporan_kinerja')
                     ->wrap()->limit(100),
             ])
             ->filters([
             Tables\Filters\SelectFilter::make('jenis')
                 ->options([
-                    'masuk' => 'Masuk',
-                    'pulang' => 'Pulang',
+                    'Masuk' => 'Masuk',
+                    'Pulang' => 'Pulang',
                 ]),
             Filter::make('created_at')        
                 ->label('Filter Bulan')
@@ -162,8 +185,14 @@ class AbsenResource extends Resource
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ViewAction::make()
+                    ->button() // ✅ jadi tombol
+                    ->color('info')
+                    ->icon('heroicon-o-eye'),
+                DeleteAction::make()
+                    ->button() // ✅ tombol
+                    ->color('danger')
+                    ->icon('heroicon-o-trash'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -209,7 +238,7 @@ public static function infolist(Infolist $infolist): Infolist
                                             'danger' => 'pulang',
                                         ]),
                                     TextEntry::make('waktu_absen')->label('Waktu Absen'),
-                                    TextEntry::make('nama')->label('Nama'),
+                                    TextEntry::make('pegawai.nama')->label('Nama'),
                                 ])
                                 ->columns(1)
                                 ->inlineLabel(),
