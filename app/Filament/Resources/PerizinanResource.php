@@ -149,8 +149,8 @@ class PerizinanResource extends Resource
                     ]),
                 ImageColumn::make('gambar')
                     ->label('Foto')
-                    ->width(80)       // atur lebar
-                    ->height(80)      // optional kalau mau fixed height
+                    ->width(50)       // atur lebar
+                    ->height(50)      // optional kalau mau fixed height
                     ->extraImgAttributes(['class' => 'rounded-lg object-cover']), // kasih radius,
 
                 TextColumn::make('jenis_izin')
@@ -182,7 +182,7 @@ class PerizinanResource extends Resource
 
                     if (in_array($extension, $imageExtensions)) {
                 // Jika file adalah gambar, tampilkan preview gambar
-                    return '<img src="' . $url . '" style="max-width: 50px; border-radius: 6px;" />';
+                    return '<img src="' . $url . '" style="max-width: 40px; border-radius: 4px;" />';
                              } else {
                 // Jika bukan gambar, tampilkan link download
                     return '<a href="' . $url . '" target="_blank" class="filament-link">📄 Lihat File</a>';
@@ -204,8 +204,15 @@ class PerizinanResource extends Resource
                     ->toggleable()
                     ->wrap() // agar teks panjang turun ke bawah
                     ->extraAttributes([
-                        'style' => 'max-width: 250px; white-space: normal; word-break: break-word;'
-                    ]),
+                        'style' => 'max-width: 180px; white-space: normal; word-break: break-word;'
+                    ])
+                    ->color(function ($record) {
+                        return match ($record->status) {
+                            'disetujui' => 'success', // hijau
+                            'ditolak'   => 'danger',  // merah
+                            default     => null,      // default warna bawaan
+                    };
+                }),
 
             ])
             ->filters([
@@ -263,6 +270,7 @@ class PerizinanResource extends Resource
             ->bulkActions([
                 BulkActionGroup::make([
                     Tables\Actions\ExportAction::make()
+                        ->color('success')
                         ->exporter(PerizinanExporter::class)
                         ->label('Ekspor Perizinan'),
                     DeleteBulkAction::make(),
@@ -270,6 +278,7 @@ class PerizinanResource extends Resource
             ])
             ->headerActions([
                 Tables\Actions\ExportAction::make()
+                    ->color('success')
                     ->exporter(PerizinanExporter::class)
                     ->label('Ekspor Perizinan')
                     ->icon('heroicon-o-arrow-down-tray'),
@@ -313,8 +322,15 @@ class PerizinanResource extends Resource
                                             'danger' => 'ditolak',
                                         ]),
                                     TextEntry::make('catatan_admin')
-                                        ->label('Catatan Admin'),    
-
+                                        ->label('Catatan Admin')
+                                        ->columnSpanFull()
+                                        ->color(function ($record) {
+                                            return match ($record->status) {
+                                                'disetujui' => 'success', // hijau
+                                                'ditolak'   => 'danger',  // merah
+                                                default     => null,
+                                            };
+                                        }),    
                                 ])
                                 ->columns(1)
                                 ->inlineLabel(), // Membuat group ini memanjang ke kanan

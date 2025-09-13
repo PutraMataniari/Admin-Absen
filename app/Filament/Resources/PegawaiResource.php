@@ -73,15 +73,58 @@ class PegawaiResource extends Resource
                     ->maxDate(now())
                     ->displayFormat('d/m/Y')
                     ->closeOnDateSelection(),
-                TextInput::make('jabatan')
+                // TextInput::make('jabatan')
+                //     ->required()
+                //     ->maxLength(100),
+
+                // ✅ Dropdown Jabatan
+                Select::make('jabatan')
+                    ->label('Jabatan')
                     ->required()
-                    ->maxLength(100),
-                TextInput::make('bagian')
+                    ->options([
+                        'kabag' => 'Kepala Bagian (Kabag)',
+                        'kasubag' => 'Kepala Sub Bagian (Kasubag)',
+                        'pelaksana' => 'Pelaksana',
+                    ])
+                    ->searchable(),
+                
+                // ✅ Dropdown Bagian
+                Select::make('bagian')
+                    ->label('Bagian')
                     ->required()
-                    ->maxLength(100),
+                    ->options([
+                        'keuangan, umum, logistik' => 'Keuangan, Umum, Logistik',
+                        'teknis penyelenggaraan pemulu, parhumas' => 'Teknis Penyelenggaraan Pemilu, ParHumas',
+                        'perencanaan, data dan informasi' => 'Perencanaan, Data dan Informasi',
+                        'hukum dan sdm' => 'Hukum dan Sumber Daya Manusia',
+                    ])
+                    ->searchable(),
+
+                // TextInput::make('bagian')
+                //     ->required()
+                //     ->maxLength(100),
                 TextInput::make('sub_bagian')
                     ->required()
                     ->maxLength(100),
+                
+                TextInput::make('password')
+                    ->label('Password')
+                    ->password()
+                    ->required()
+                    ->minLength(6)
+                    ->maxLength(255)
+                    ->confirmed(),
+                    // ->dehydrated(fn ($state) => filled($state)) // Hanya simpan jika diisi
+                    // ->hidden(fn (string $context) => $context === 'edit') // Sembunyikan di form edit
+                    // ->helperText('Biarkan kosong jika tidak ingin mengubah password.')
+
+                TextInput::make('password_confirmation')
+                    ->label('Konfirmasi Password')
+                    ->password()
+                    ->required()
+                    ->minLength(6)
+                    ->maxLength(255)
+                    ->dehydrated(false), // Jangan simpan ke database
             ]);
     }
 
@@ -124,6 +167,7 @@ class PegawaiResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\ExportAction::make()
+                        ->color('success')
                         ->exporter(PegawaiExporter::class)
                         ->label('Ekspor Pegawai'),
                     Tables\Actions\DeleteBulkAction::make(),
@@ -133,6 +177,7 @@ class PegawaiResource extends Resource
                 // Tables\Actions\CreateAction::make(),
                 ExportAction::make()
                     ->exporter(PegawaiExporter::class)
+                    ->color('success')
                     ->label('Ekspor Pegawai')
                     ->icon('heroicon-o-arrow-down-tray'),
             ]);

@@ -23,16 +23,36 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
     
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('nama'),
-                TextInput::make('email'),
-                TextInput::make('password')->password()
+                TextInput::make('name')
+                ->label('Nama')
+                ->required(),
+                TextInput::make('email')
+                ->email()
+                ->required()
+                ->unique(ignoreRecord: true),
+                TextInput::make('password')
+                ->password()
+                ->dehydrated(fn ($state) => filled($state)) // Hanya dehidrasi jika diisi
+                ->required(fn (string $context): bool => $context === 'create') // Wajib diisi saat membuat
+                ->minLength(6)
+                ->same('passwordConfirmation')
+                ->label('Password'),
+                TextInput::make('passwordConfirmation')
+                ->password()
+                ->dehydrated(false) // Jangan dehidrasi
+                ->required(fn (string $context): bool => $context === 'create') // Wajib diisi saat membuat
+                ->minLength(6)
+                ->label('Konfirmasi Password'),
+                TextInput::make('role')
+                ->label('Role')
+                ->required(),
             ]);
     }
 
@@ -50,6 +70,9 @@ class UserResource extends Resource
                 TextColumn::make('role') // ✅ tambahkan ini
                     ->label('Role')
                     ->sortable(),
+                // TextColumn::make('password')
+                //     ->label('Password'),
+                    // ->hidden(), // Sembunyikan kolom password
             ])
             ->filters([
                 //

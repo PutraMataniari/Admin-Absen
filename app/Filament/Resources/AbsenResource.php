@@ -197,6 +197,7 @@ class AbsenResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\ExportAction::make()
+                        ->color('success')
                         ->exporter(AbsenExporter::class)
                         ->label('Ekspor Absen'),
                     Tables\Actions\DeleteBulkAction::make(),
@@ -205,6 +206,7 @@ class AbsenResource extends Resource
             ->headerActions([
                 // Tables\Actions\CreateAction::make(),
                 ExportAction::make()
+                    ->color('success')
                     ->exporter(AbsenExporter::class)
                     ->label('Ekspor Absen')
                     ->icon('heroicon-o-arrow-down-tray'),
