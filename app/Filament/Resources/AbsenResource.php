@@ -19,6 +19,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Filament\Tables\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Exports\AbsenExporter;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
@@ -198,6 +199,10 @@ class AbsenResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\ExportAction::make()
                         ->color('success')
+                        ->formats([
+                            ExportFormat::Xlsx
+                            // ExportFormat::Pdf
+                        ])
                         ->exporter(AbsenExporter::class)
                         ->label('Ekspor Absen'),
                     Tables\Actions\DeleteBulkAction::make(),
@@ -209,6 +214,10 @@ class AbsenResource extends Resource
                     ->color('success')
                     ->exporter(AbsenExporter::class)
                     ->label('Ekspor Absen')
+                    ->formats([
+                        ExportFormat::Xlsx,
+                        // ExportFormat::Pdf,
+                    ])
                     ->icon('heroicon-o-arrow-down-tray'),
             ]);
     }

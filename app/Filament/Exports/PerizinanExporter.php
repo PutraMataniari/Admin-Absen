@@ -11,6 +11,11 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
+use OpenSpout\Common\Entity\Style\CellAlignment;
+use OpenSpout\Common\Entity\Style\CellVerticalAlignment;
+use OpenSpout\Common\Entity\Style\Color;
+use OpenSpout\Common\Entity\Style\Style;
+
 class PerizinanExporter extends Exporter
 {
     protected static ?string $model = Absen::class;
@@ -18,9 +23,10 @@ class PerizinanExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')->label('ID'),
-            ExportColumn::make('nama')->label('Nama'),
-            ExportColumn::make('waktu_absen')->label('Waktu Absen'),
+            // ExportColumn::make('id')->label('ID'),
+            ExportColumn::make('pegawai.nama')->label('Nama'),
+            ExportColumn::make('waktu_absen')->label('Waktu Absen')
+                ->formatStateUsing(fn ($state) => \Carbon\Carbon::parse($state)->format('H:i d-m-Y')),
             ExportColumn::make('lokasi')->label('Lokasi'),
             ExportColumn::make('gambar')->label('Foto'),
             ExportColumn::make('jenis_izin')->label('Kategori Izin'),
@@ -94,5 +100,19 @@ class PerizinanExporter extends Exporter
         }
 
         return $body;
+    }
+
+     public function getXlsxHeaderCellStyle(): ?Style
+    {
+        // Define the style for header cells in the exported Excel file
+    return (new Style())
+        ->setFontBold()
+        // ->setFontItalic()
+        ->setFontSize(12)
+        ->setFontName('Consolas')
+        ->setFontColor(Color::rgb(0, 0, 0))
+        ->setBackgroundColor(Color::rgb(0, 218, 0))
+        ->setCellAlignment(CellAlignment::CENTER)
+        ->setCellVerticalAlignment(CellVerticalAlignment::CENTER);
     }
 }

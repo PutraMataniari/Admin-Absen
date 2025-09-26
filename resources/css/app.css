@@ -9,3 +9,44 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+
+/* === LIGHT MODE === */
+/* html:not(.dark) .fi-topbar nav {
+    background-color: #800000 !important; 
+    color: white !important;
+} */
+
+/* Supaya judul app di topbar tetap putih */
+/* html:not(.dark) .fi-topbar nav a,
+html:not(.dark) .fi-topbar nav span,
+html:not(.dark) .fi-topbar nav button {
+    color: #ffffff !important;
+} */
+
+/* === DARK MODE === */
+/* html.dark .fi-topbar nav {
+    background-color: #1f2937 !important; /* biarkan dark default */
+/* } */ 
+
+
+/* 🔹 Menu sidebar & topbar item */
+.fi-sidebar-nav a,
+.fi-topbar nav a,
+.fi-topbar .fi-topbar-item {
+    transition: all 0.2s ease-in-out;
+}
+
+/* 🔹 Hover efek */
+.fi-sidebar-nav a:hover,
+.fi-topbar nav a:hover,
+.fi-topbar .fi-topbar-item:hover {
+    background-color: #800000 !important; /* maroon */
+    color: #ffffff !important; /* teks putih */
+    font-weight: bold !important; /* jadi bold */
+    border-radius: 6px; /* opsional: biar agak rounded */
+}
+
+
+
+

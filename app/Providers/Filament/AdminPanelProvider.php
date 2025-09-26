@@ -29,10 +29,20 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName('SIAGA')
+            // ->darkMode(false)
             ->login()
+            ->font('Poppins')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Lime,
+                'danger' => Color::Red,
+                'gray' => Color::Gray,
+                'info' => Color::Blue,
+                'primary' => Color::Indigo,
+                'success' => Color::Emerald,
+                'warning' => Color::Orange,
+                'secondary' => Color::Lime,
+                'tertiary' => Color::Cyan,
+                'accent' => Color::Purple,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -56,7 +66,10 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->sidebarCollapsibleOnDesktop()
+            ->topNavigation()
+            // ->viteTheme('resources/css/app.css')
+            // ->viteTheme('resources/css/filament/admin/theme.css')
+            // ->theme(asset('css/filament/admin/theme.css'))
 
             ->navigationGroups([
             NavigationGroup::make()
@@ -67,15 +80,8 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
             ApiServicePlugin::make()
         ])
-        ->databaseNotifications();
+        ->databaseNotifications()
+        ->registration(false);
     }
-
-// public function navigationGroups(): array
-// {
-//     return [
-//         NavigationGroup::make('Absen')
-//             ->icon('heroicon-o-document-duplicate'), // Ganti ikon sesuai preferensi
-//     ];
-// }
 
 }

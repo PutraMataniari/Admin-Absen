@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfilController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\API\PasswordResetController;
 
 
 // 🔹 Upload Config (dipanggil Android supaya tahu batas upload file)
@@ -24,6 +25,10 @@ Route::get('/upload-config', function () {
 Route::post('register', [AuthController::class, 'signup']);
 Route::post('login', [AuthController::class, 'login']);
 
+// 🔹 Password Reset
+Route::post('request-reset-password', [PasswordResetController::class, 'requestReset']);
+Route::post('reset-password', [PasswordResetController::class, 'resetPassword']);
+
 Route::middleware('auth:sanctum')->group(function () {
     // ✅ Logout
     Route::post('logout', [AuthController::class, 'logout']);
@@ -36,10 +41,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // ✅ Perizinan
     Route::post('absen/izin', [PerizinanController::class, 'store']);
 
+    // ✅ Admin konfirmasi izin
+    Route::post('absen/izin/{izin}/konfirmasi', [PerizinanController::class, 'konfirmasi']);
+
     // ✅ Profil
     Route::get('/profil', [ProfilController::class, 'show']);
     Route::post('/profil/update', [ProfilController::class, 'update']);
 });
+
 
     // 🔹 UserController (opsional)
     Route::post('users', [UserController::class, 'store']);

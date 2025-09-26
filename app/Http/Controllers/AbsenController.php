@@ -143,7 +143,24 @@ class AbsenController extends Controller
         $absen = Absen::where('pegawai_id', $pegawai->id)
             ->with('pegawai')
             ->orderBy('waktu_absen', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id'               => $item->id,
+                    'jenis'            => $item->jenis,
+                    'pegawai'          => $item->pegawai,
+                    'waktu_absen'      => $item->waktu_absen,
+                    'waktu_konfirmasi' => $item->waktu_konfirmasi, // ✅ tambahkan
+                    'lokasi'           => $item->lokasi,
+                    'gambar'           => $item->gambar,
+                    'jenis_izin'       => $item->jenis_izin,
+                    'laporan_kinerja'  => $item->laporan_kinerja,
+                    'bukti'            => $item->bukti,
+                    'bukti_asli'       => $item->bukti_asli,
+                    'status'           => $item->status,
+                    'catatan_admin'    => $item->catatan_admin,
+                ];
+            });
 
         return response()->json([
             'success' => true,

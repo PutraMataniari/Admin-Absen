@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+html:not(.dark) .fi-topbar nav {
+    background-color: #800000 !important; /* maroon */
+    color: #ffffff !important; /* teks putih */
+}
+
+html.dark .fi-topbar nav {
+    background-color: #1f2937 !important; /* dark bawaan */
+}

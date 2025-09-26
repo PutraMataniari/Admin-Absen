@@ -57,17 +57,17 @@ class MonthlyAbsenChart extends ChartWidget
                 [
                     'label' => 'Masuk',
                     'data' => $masuk,
-                    'backgroundColor' => '#10B981', // hijau
+                    'backgroundColor' => '#25dd00ff', // hijau
                 ],
                 [
                     'label' => 'Pulang',
                     'data' => $pulang,
-                    'backgroundColor' => '#3B82F6', // biru
+                    'backgroundColor' => '#2173f7ff', // biru
                 ],
                 [
                     'label' => 'Izin',
                     'data' => $izin,
-                    'backgroundColor' => '#F59E0B', // kuning
+                    'backgroundColor' => '#f5e50bff', // kuning
                 ],
             ],
             'labels' => $days,

@@ -7,10 +7,10 @@ use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
 
-// use OpenSpout\Common\Entity\Style\CellAlignment;
-// use OpenSpout\Common\Entity\Style\CellVerticalAlignment;
-// use OpenSpout\Common\Entity\Style\Color;
-// use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Common\Entity\Style\CellAlignment;
+use OpenSpout\Common\Entity\Style\CellVerticalAlignment;
+use OpenSpout\Common\Entity\Style\Color;
+use OpenSpout\Common\Entity\Style\Style;
 
 
 class PegawaiExporter extends Exporter
@@ -20,17 +20,26 @@ class PegawaiExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')
-                ->label('ID'),
-            ExportColumn::make('foto_profil'),
-            ExportColumn::make('nama'),
-            ExportColumn::make('nip'),
-            ExportColumn::make('email'),
-            ExportColumn::make('no_telp'),
-            ExportColumn::make('tanggal_lahir'),
-            ExportColumn::make('jabatan'),
-            ExportColumn::make('bagian'),
-            ExportColumn::make('sub_bagian'),
+            // ExportColumn::make('id')
+            //     ->label('ID'),
+            // ExportColumn::make('foto_profil'),
+            ExportColumn::make('nama')
+                ->label('Nama'),
+            ExportColumn::make('nip')
+                ->label('NIP'),
+            ExportColumn::make('email')
+                ->label('Email'),
+            ExportColumn::make('no_telp')
+                ->label('No. Telp'),
+            ExportColumn::make('tanggal_lahir')
+                ->formatStateUsing(fn ($state) => \Carbon\Carbon::parse($state)->format('d-m-Y'))
+                ->label('Tanggal Lahir'),
+            ExportColumn::make('jabatan')
+                ->label('Jabatan'),
+            ExportColumn::make('bagian')
+                ->label('Bagian'),
+            ExportColumn::make('sub_bagian')
+                ->label('Sub Bagian'),
         ];
     }
 
@@ -45,17 +54,17 @@ class PegawaiExporter extends Exporter
         return $body;
     }
 
-    // public function getXlsxHeaderCellStyle(): ?Style
-    // {
-    //     // Define the style for header cells in the exported Excel file
-    // return (new Style())
-    //     ->setFontBold()
-    //     ->setFontItalic()
-    //     ->setFontSize(14)
-    //     ->setFontName('Consolas')
-    //     ->setFontColor(Color::rgb(255, 255, 77))
-    //     ->setBackgroundColor(Color::rgb(0, 0, 0))
-    //     ->setCellAlignment(CellAlignment::CENTER)
-    //     ->setCellVerticalAlignment(CellVerticalAlignment::CENTER);
-    // }
+    public function getXlsxHeaderCellStyle(): ?Style
+    {
+        // Define the style for header cells in the exported Excel file
+    return (new Style())
+        ->setFontBold()
+        // ->setFontItalic()
+        ->setFontSize(12)
+        ->setFontName('Consolas')
+        ->setFontColor(Color::rgb(0, 0, 0))
+        ->setBackgroundColor(Color::rgb(0, 218, 0))
+        ->setCellAlignment(CellAlignment::CENTER)
+        ->setCellVerticalAlignment(CellVerticalAlignment::CENTER);
+    }
 }

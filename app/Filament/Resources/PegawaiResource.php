@@ -29,6 +29,7 @@ use Filament\Infolists\Components\Fieldset;
 use Filament\Infolists\Components\Split;
 use Filament\Infolists\Components\Group;
 use Filament\Tables\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteAction;
@@ -169,6 +170,10 @@ class PegawaiResource extends Resource
                     Tables\Actions\ExportAction::make()
                         ->color('success')
                         ->exporter(PegawaiExporter::class)
+                        ->formats([
+                            ExportFormat::Xlsx
+                            // ExportFormat::Pdf
+                        ])
                         ->label('Ekspor Pegawai'),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
@@ -178,6 +183,10 @@ class PegawaiResource extends Resource
                 ExportAction::make()
                     ->exporter(PegawaiExporter::class)
                     ->color('success')
+                    ->formats([
+                        ExportFormat::Xlsx,
+                        // ExportFormat::Pdf,
+                    ])
                     ->label('Ekspor Pegawai')
                     ->icon('heroicon-o-arrow-down-tray'),
             ]);

@@ -57,13 +57,13 @@ class StatsOverview extends BaseWidget
             Stat::make('Pegawai', Pegawai::count())
                 ->description('Jumlah Pegawai')
                 ->icon('heroicon-o-users')
-                ->color('success'),
+                ->color('secondary'),
 
             // ✅ Absen Masuk & Pulang dalam 1 box
             stat::make('Absen Hari Ini', $absenMasuk + $absenPulang)
                 ->description("Masuk: {$absenMasuk} | Pulang: {$absenPulang}")
                 ->icon('heroicon-o-check-circle')
-                ->color('info'),
+                ->color('success'),
 
 
             Stat::make('Perizinan Hari Ini', $izinDinas + $izinSakit + $izinCuti)

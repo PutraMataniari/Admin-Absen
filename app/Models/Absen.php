@@ -15,6 +15,7 @@ class Absen extends Model
         'jenis',    //masuk, pulang, izin
         // 'nama',
         'waktu_absen',
+        'waktu_konfirmasi',
         'lokasi',
         'gambar',
         'jenis_izin', //cuti, sakit, dinas

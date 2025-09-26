@@ -1,0 +1,35 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@config 'tailwind.config.js';
+
+/* ✅ Header tabel boleh wrap */
+th.filament-tables-header-cell {
+    white-space: normal !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+}
+
+/* ✅ Pastikan tabel mendukung wrapping */
+.filament-tables-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+}
+
+/* ✅ Kolom Lokasi khusus */
+.filament-tables-cell[data-column="lokasi"] {
+    max-width: 220px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    line-height: 1.3 !important;
+    vertical-align: middle !important;
+}
+
+/* ✅ Semua sel tabel vertikal tengah */
+.filament-tables-cell {
+    vertical-align: middle !important;
+}
+
+/* ✅ Header tabel rata tengah */
+.filament-tables-header-cell {
+    text-align: center !important;
+}
