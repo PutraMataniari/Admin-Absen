@@ -67,7 +67,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->topNavigation()
-            // ->viteTheme('resources/css/app.css')
+            ->viteTheme('resources/css/app.css')
             // ->viteTheme('resources/css/filament/admin/theme.css')
             // ->theme(asset('css/filament/admin/theme.css'))
 
