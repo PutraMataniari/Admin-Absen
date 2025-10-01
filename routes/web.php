@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\SendEmail;
+
 
 Route::get('/db-test', function () {
     try{
@@ -13,16 +15,30 @@ Route::get('/db-test', function () {
     }
 });
 
+    Route::get('/', function () {
+        return view('welcome');
+    });
 
-Route::get('/test-email', function () {
-    try {
-        Mail::raw('Halo, ini email percobaan dari Laravel + Brevo SMTP 🚀', function ($message) {
-            $message->to('alamat_email_tujuan@gmail.com') // ganti dengan email tujuanmu
-                    ->subject('Test Email dari Laravel');
-        });
+    Route::get('/send-email',function(){
+        $data = [
+            'name' => 'Admin SIAGA',
+            'body' => 'Testing Kirim Email di Sistem Absensi Karyawan'
+        ];
+    
+        Mail::to('trisaputra195@gmail.com')->send(new SendEmail($data));
+    
+        dd("Email Berhasil dikirim.");
+    });
 
-        return '✅ Email berhasil dikirim!';
-    } catch (\Exception $e) {
-        return '❌ Error: ' . $e->getMessage();
-    }
-});
+// Route::get('/test-email', function () {
+//     try {
+//         Mail::raw('Halo, ini email percobaan dari Laravel + Brevo SMTP 🚀', function ($message) {
+//             $message->to('alamat_email_tujuan@gmail.com') // ganti dengan email tujuanmu
+//                     ->subject('Test Email dari Laravel');
+//         });
+
+//         return '✅ Email berhasil dikirim!';
+//     } catch (\Exception $e) {
+//         return '❌ Error: ' . $e->getMessage();
+//     }
+// });

@@ -16,7 +16,7 @@ class AdminUserSeeder extends Seeder
     {
         //
         User::updateOrCreate(
-            ['email' => 'adminsiagakpu@gmail.com'], // email unik
+            ['email' => 'trisaputra195@gmail.com'], // email unik
             [
                 'name' => 'Admin',
                 'password' => bcrypt('adminsiagakpu123@'), // ubah sesuai kebutuhan

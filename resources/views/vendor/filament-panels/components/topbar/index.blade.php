@@ -1,6 +1,22 @@
 @props([
     'navigation',
 ])
+    <style>
+    .rednav {
+            background-color: red !important;
+        }
+        .rednav span {
+            color: black;
+        }
+
+        .rednav svg {
+            color: black;
+        }
+
+        .dark .rednav {
+            background-color: #030712 !important;
+        }
+    </style>
 
 <div
     {{
@@ -11,7 +27,7 @@
     }}
 >
     <nav
-         class="flex h-16 items-center gap-x-4 px-4 shadow-sm ring-1 ring-gray-950/5 md:px-6 lg:px-8"
+         class="flex h-16 items-center gap-x-4 px-4 shadow-sm ring-1 ring-gray-950/5 md:px-6 lg:px-8 rednav"
     >
         {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TOPBAR_START) }}
 
@@ -38,7 +54,7 @@
             />
 
             <x-filament::icon-button
-                color="white"
+                color="blue"
                 icon="heroicon-o-x-mark"
                 icon-alias="panels::topbar.close-sidebar-button"
                 icon-size="lg"
