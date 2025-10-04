@@ -29,7 +29,6 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            // ->darkMode(false)
             ->login()
             ->font('Poppins')
             ->colors([
@@ -47,7 +46,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                // Pages\Dashboard::class,
                 \App\Filament\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
@@ -67,10 +65,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->topNavigation()
-            // ->viteTheme('resources/css/app.css')
-            // ->viteTheme('resources/css/filament/admin/theme.css')
-            // ->theme(asset('css/filament/admin/theme.css'))
-
+    
             ->navigationGroups([
             NavigationGroup::make()
                  ->label('Absen')

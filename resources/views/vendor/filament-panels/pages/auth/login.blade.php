@@ -2,25 +2,6 @@
 
     {{-- Tambahkan Background --}}
     <style>
-        body {
-            background: url("{{ asset('images/bg_kpu.jpg') }}") no-repeat center center fixed !important;
-            background-size: cover !important;
-            background-position: center;
-            padding: 0 5%;
-        }
-
-        /* Tambahkan overlay gelap */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5); /* Warna hitam dengan transparansi */
-            z-index: -1; /* Pastikan overlay berada di belakang konten */
-        }
-
         .btn-maroon {
             background-color: #dd0505;
             color: white;
@@ -35,10 +16,18 @@
             background-color: #ff1f1f; /* lebih terang saat hover */
         } 
 
+        .fi-simple-main {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+
+
     </style>
 
+    {{-- <div class="flex items-center justify-center min-h-screen"> --}}
     {{-- Card Login --}}
-    <div class="bg-white/95 backdrop-blur-sm rounded-4xl shadow-xl p-4 w-full max-w-md">
+   
+    <div class="bg-white rounded-2xl h-screen p-20 w-full max-w-md justify-center flex flex-col">
         
         {{-- Branding --}}
         <div class="text-center mb-6">
@@ -63,4 +52,5 @@
 
         </x-filament-panels::form>
     </div>
+</div>
 </div>

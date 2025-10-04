@@ -3,19 +3,23 @@
 ])
     <style>
     .rednav {
-            background-color: red !important;
+            background-color: #dd0707 !important;
         }
         .rednav span {
-            color: black;
+            color: rgb(31, 28, 28);
         }
 
         .rednav svg {
-            color: black;
+            color: rgb(31, 28, 28);
         }
 
         .dark .rednav {
-            background-color: #030712 !important;
+            background-color: #252527 !important;
         }
+        .dark .rednav svg {
+            color: #e5e7eb !important;
+        }
+    
     </style>
 
 <div
